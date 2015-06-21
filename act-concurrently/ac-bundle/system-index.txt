@@ -1,0 +1,7 @@
+software/alexandria-20150505-git/alexandria-tests.asd
+software/alexandria-20150505-git/alexandria.asd
+software/bordeaux-threads-0.8.3/bordeaux-threads-test.asd
+software/bordeaux-threads-0.8.3/bordeaux-threads.asd
+software/mailbox-20131003-git/mailbox.asd
+software/usocket-0.6.2/usocket-test.asd
+software/usocket-0.6.2/usocket.asd
