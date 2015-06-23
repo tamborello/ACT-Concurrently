@@ -3,12 +3,9 @@
 ;;; Usage: Load with ACT-R by placing into the user-loads folder
 ;;;
 ;;; To Do:
-;;; 1. Instruct users to name their model file "model.lisp" and to place it into the
-;;; task-manager directory inside of ACT-R's user-loads directory. Use merge-pathnames 
-;;; to load the model-file into *model*.
 ;;;
 ;;;
-;;; 2. Add some informative status messages to the worker and manager, like "Ready to work
+;;; N. Add some informative status messages to the worker and manager, like "Ready to work
 ;;; & listening for jobs" or "Sending job to worker ~a" or "Receiving data from worker 
 ;;; ~a."
 ;;;
@@ -19,7 +16,7 @@
 ;;; marked finished, signal the human (or whatever).
 ;;;
 ;;;
-;;; N+1. Consider switching to some kind of thread-pool design a la Dean & Ghemawat (2008)'s 
+;;; N. Consider switching to some kind of thread-pool design a la Dean & Ghemawat (2008)'s 
 ;;; mapreduce to achieve resilience for issues like varying processor speeds and hiccups.
 ;;; That could also make it easier to signal worker completion.
 ;;;
@@ -103,6 +100,12 @@
 ;;;
 ;;; 2015.06.16 17
 ;;; Renamed "ACT-Concurrently"
+;;;
+;;; 2015.06.23 18
+;;; If *manager-p* and the model file is named "model.lisp" and placed 
+;;; in the act-concurrently directory inside of ACT-R's user-loads 
+;;; directory, then ACT-Concurrently will read the model-file into 
+;;; *model*.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -163,21 +166,21 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Manager
 ;;; If this is the manager,
-;;; then place here the model's run call as well as  
+;;; then set *manager-p* to t,
+;;; place just below the model's run call as well as  
 ;;; the workers' addresses and ports.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar *manager-p* nil)
 (defvar *mailbox* (mailbox:make-mailbox))
-(defvar *model-file-path* nil)
-(setf *model-file-path* nil)
-;; (setf *model-file-path* "/Users/frank/Documents/Lisp/Concurrency/test-program.lisp")
-;; (setf *model-file-path* "/Users/frank/Documents/NRL/Error/UNRAVEL/UNRAVEL.lisp")
 (defvar *model* nil)
-(setf *model* nil)
+(setf 
+ *manager-p* nil ; <- set manager status here
+ *model* nil)
 
 
 ;; Whatever function and arguments you call to run your model,
 ;; place it here, inside its own list, led by a single quote, like '((run-model :n 3))
-(defvar *model-run-call* '((run-model :n 3)))
+(defvar *model-run-call* '(run-model :n 3))
 
 
 ;; Worker addresses and ports
@@ -195,8 +198,15 @@
     `(let ((it ,test-form))
        (if it ,then-form ,else-form))))
 
-(defun read-in-the-model-file ()
-  (with-open-file (the-file *model-file-path* :direction :input)
+(when *manager-p*
+  (with-open-file 
+      (the-file 
+       (merge-pathnames 
+        "model.lisp" 
+        (make-pathname :name nil :type nil
+                       :defaults #. (or *compile-file-truename*
+                                        *load-truename*)))
+       :direction :input)
     (do (model eof)
         ((not (null eof))
          (setf *model* (reverse model)))
@@ -204,7 +214,6 @@
            (push it model)
            (setf eof t)))))
 
-;; (read-in-the-model-file)
 
 (defun send-job-to-worker (message addr port)
   (usocket:with-client-socket (sock str addr port)
