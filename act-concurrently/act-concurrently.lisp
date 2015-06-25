@@ -1,5 +1,6 @@
 ;;; ACT-Concurrently
-;;; Revision: 18
+;;; Author: Frank Tamborello
+;;; Revision: 19
 ;;; Usage: Load with ACT-R by placing into the user-loads folder
 ;;;
 ;;; To Do:
@@ -106,6 +107,10 @@
 ;;; in the act-concurrently directory inside of ACT-R's user-loads 
 ;;; directory, then ACT-Concurrently will read the model-file into 
 ;;; *model*.
+;;;
+;;; 2015.06.25 19
+;;; As per Dan Bothell's, suggestion, for each worker I'm setting the
+;;; random module's seed to a different value.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -231,7 +236,19 @@
        (bt:make-thread
         (lambda ()
           (send-job-to-worker
-           (append *model* `(,*model-run-call*))
+           (append 
+            *model* 
+            ((lambda ()
+               (sgp-fct 
+                `(:seed
+                  (,(abs 
+                     (+ *random-module-counter*
+                        (get-internal-real-time)
+                        (* 500 
+                           internal-time-units-per-second
+                           (position w *worker-addresses-and-ports*)))) 
+                   ,(act-r-random 42))))))
+            `(,*model-run-call*))
            (car w)
            (cdr w))))
        w-threads))))
