@@ -1,11 +1,39 @@
-;;; ACT-Concurrently
-;;; Author: Frank Tamborello
-;;; Revision: 19
-;;; Usage: Load with ACT-R by placing into the user-loads folder
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 
+;;; Author      : Frank Tamborello
+;;; Copyright   : (c)2015 Frank Tamborello, All Rights Reserved
+;;; Availability: public domain
+;;; 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; This library is free software; you can redistribute it and/or
+;;; modify it under the terms of the Lisp Lesser General Public
+;;; License: the GNU Lesser General Public License as published by the
+;;; Free Software Foundation (either version 2.1 of the License, 
+;;; or, at your option, any later version),
+;;; and the Franz, Inc Lisp-specific preamble.
 ;;;
-;;; To Do:
+;;; This library is distributed in the hope that it will be useful,
+;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;;; Lesser General Public License for more details.
 ;;;
-;;;
+;;; You should have received a copy of the Lisp Lesser General Public
+;;; License along with this library; if not, write to the Free Software
+;;; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+;;; and see Franz, Inc.'s preamble to the GNU Lesser General Public License,
+;;; http://opensource.franz.com/preamble.html.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 
+;;; Filename    : act-concurrently.lisp
+;;; Revision     : 19
+;;; 
+;;; Description : Provides a concurrence work-around for running ACT-R models
+;;; 
+;;; Usage 	: Place in the ACT-R user-loads folder, along with the rest
+;;;		of the ACT-Concurrently library.
+;;; 
+;;; Bugs        : None known
+;;; 
 ;;; N. Add some informative status messages to the worker and manager, like "Ready to work
 ;;; & listening for jobs" or "Sending job to worker ~a" or "Receiving data from worker 
 ;;; ~a."
@@ -22,11 +50,7 @@
 ;;; That could also make it easier to signal worker completion.
 ;;;
 ;;; 
-;;;
-;;; Bugs: None known
-;;;
-;;;
-;;; Revision History
+;;; ----- History -----
 ;;; 2015.04.04 1
 ;;; 1. Inception. 
 ;;;
