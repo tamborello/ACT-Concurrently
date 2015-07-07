@@ -25,7 +25,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 
 ;;; Filename    : act-concurrently.lisp
-;;; Revision     : 20
+;;; Revision     : 21
 ;;; 
 ;;; Description : Provides a concurrence work-around for running ACT-R models
 ;;; 
@@ -140,6 +140,9 @@
 ;;; Added a commented call to worker-listen-for-job which a user may 
 ;;; uncomment in order to make a worker automatically start into its 
 ;;; ready state at load time.
+;;;
+;;; 2015.07.07 21
+;;; Clarified some comments in the user-configuraable manager code.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -206,16 +209,16 @@
 ;;; place just below the model's run call as well as  
 ;;; the workers' addresses and ports.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar *manager-p* nil)
+(defvar *manager-p* nil) ; <- set manager status here
+
+
+;; Do not edit these
 (defvar *mailbox* (mailbox:make-mailbox))
 (defvar *model* nil)
-(setf 
- *manager-p* nil ; <- set manager status here
- *model* nil)
 
 
 ;; Whatever function and arguments you call to run your model,
-;; place it here, inside its own list, led by a single quote, like '((run-model :n 3))
+;; place it here, inside its own list, led by a single quote, like '(run-model :n 3)
 (defvar *model-run-call* '(run-model :n 3))
 
 
