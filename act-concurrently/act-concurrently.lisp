@@ -25,7 +25,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 
 ;;; Filename    : act-concurrently.lisp
-;;; Revision     : 19
+;;; Revision     : 20
 ;;; 
 ;;; Description : Provides a concurrence work-around for running ACT-R models
 ;;; 
@@ -135,6 +135,11 @@
 ;;; 2015.06.25 19
 ;;; As per Dan Bothell's, suggestion, for each worker I'm setting the
 ;;; random module's seed to a different value.
+;;;
+;;; 2015.07.07 20
+;;; Added a commented call to worker-listen-for-job which a user may 
+;;; uncomment in order to make a worker automatically start into its 
+;;; ready state at load time.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -190,6 +195,8 @@
       (loop for c in connections do (loop while (usocket:socket-close c))))))
 
 
+;; Uncomment this following line to automatically start the worker into its ready state:
+; (worker-listen-for-job)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -271,7 +278,7 @@
                         (* 500 
                            internal-time-units-per-second
                            (position w *worker-addresses-and-ports*)))) 
-                   ,(act-r-random 42))))))
+                   ,(act-r-random 42)))))) 
             `(,*model-run-call*))
            (car w)
            (cdr w))))
