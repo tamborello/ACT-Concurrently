@@ -33,6 +33,13 @@
 ;;;		of the ACT-Concurrently library.
 ;;; 
 ;;; Bugs        : None known
+;;;
+;;; To Do	:
+;;;
+;;; N. Address the security caveat:
+;;;  1. Encrypt messages
+;;;  2. Require authentication
+;;;  Would those two be sufficient to enable internet-facing nodes?
 ;;; 
 ;;; N. Add some informative status messages to the worker and manager, like "Ready to work
 ;;; & listening for jobs" or "Sending job to worker ~a" or "Receiving data from worker 
