@@ -25,7 +25,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 
 ;;; Filename    : act-concurrently.lisp
-;;; Revision     : 21
+;;; Revision     : 22
 ;;; 
 ;;; Description : Provides a concurrence work-around for running ACT-R models
 ;;; 
@@ -150,6 +150,13 @@
 ;;;
 ;;; 2015.07.07 21
 ;;; Clarified some comments in the user-configuraable manager code.
+;;;
+;;; 2015.07.08 22
+;;; 1. Renamed *model-run-call* to *model-run-expression* to be a little
+;;; more consistent.
+;;; 2. Somewhere along the way I'd broken how send-out-jobs sends out
+;;; seeds, so I fixed that & verified that the list of two integers
+;;; it sends is actually set to the seed in the worker node.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -218,25 +225,25 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar *manager-p* nil) ; <- set manager status here
 
-
-;; Do not edit these
-(defvar *mailbox* (mailbox:make-mailbox))
-(defvar *model* nil)
-
-
-;; Whatever function and arguments you call to run your model,
-;; place it here, inside its own list, led by a single quote, like '(run-model :n 3)
-(defvar *model-run-call* '(run-model :n 3))
-
-
 ;; Worker addresses and ports
 ;; Format them as a quoted list of "dotted pair" lists,
 ;; like '(("127.0.0.1" . 4321) ("192.168.2.8" . 4321))
 ;; where each dotted pair is the address and port of one worker.
 (defvar *worker-addresses-and-ports* 
-  '(("127.0.0.1" . 4321)
-    ("127.0.0.1" . 4322)))
+  nil)
 
+;; Put your expression to start your model here as a quoted expression,
+;; like: '(bst-experiment 10)
+(defvar *model-run-expression* nil)
+
+
+
+
+
+
+;; Do not edit these
+(defvar *mailbox* (mailbox:make-mailbox))
+(defvar *model* nil)
 
 ;; PG's aif from "On Lisp"
 (unless (fboundp 'aif)
@@ -269,35 +276,27 @@
     (when (usocket:wait-for-input sock) 
       (mailbox:post-mail (read str) *mailbox*))))
 
-
 (defun send-out-jobs ()
-  (let ((w-threads))
+  (let (w-threads seed1 seed2)
     (dolist (w *worker-addresses-and-ports* w-threads)
+      (setf seed1 (abs 
+                     (+ *random-module-counter*
+                        (get-internal-real-time)
+                        (* 500 
+                           internal-time-units-per-second
+                           (position w *worker-addresses-and-ports*))))
+            seed2 (+ 42 (act-r-random 42)))
       (push
        (bt:make-thread
         (lambda ()
           (send-job-to-worker
            (append 
-            *model* 
-            ((lambda ()
-               (sgp-fct 
-                `(:seed
-                  (,(abs 
-                     (+ *random-module-counter*
-                        (get-internal-real-time)
-                        (* 500 
-                           internal-time-units-per-second
-                           (position w *worker-addresses-and-ports*)))) 
-                   ,(act-r-random 42)))))) 
-            `(,*model-run-call*))
+            *model*
+            `((sgp-fct (quote (:seed ,(list seed1 seed2)))))
+            `(,*model-run-expression*))
            (car w)
            (cdr w))))
        w-threads))))
-
-
-
-
-
 
 ;; read the mail 
 (defvar *data* nil)
